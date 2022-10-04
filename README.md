@@ -1,8 +1,15 @@
 # Docker-Py-ReVanced
 
-A little python script that will help you in building [Revanced apps.](#note)
+A little python script that will help you in building Revanced and Revanced-Extended [apps](#note)
 
-## Build
+Note - I prefer [Revanced Extended](https://github.com/inotia00/revanced-patches/tree/revanced-extended) more
+(for YouTube & YouTube Music) hence the YouTube and YouTube Music builds in this repo are from
+Revanced Extended.
+
+## Pre-Build APKs
+You can get pre-build apks [here](https://t.me/revanced_apkss)
+
+## Build Yourself
 
 You can use any of the following methods to build.
 
@@ -108,6 +115,7 @@ By default, script build the version as recommended by Revanced team.
    4. reddit
    5. tiktok
    6. warnwetter
+   7. Spotify
 2. If you want to build a specific version . Add `version` in `environment` in the
    format
    ```ini
@@ -164,16 +172,37 @@ By default, script build the version as recommended by Revanced team.
     EXCLUDE_PATCH_YOUTUBE_MUSIC=yt-music-is-shit
    ```
 7. Remember to download the **_Microg_**. Otherwise, you will not be able to open YouTube.
+8. If you want to disable use Revanced-Extended for YouTube and YouTube Music. Add the following adding
+   in `environment` like
+   ```dotenv
+    BUILD_EXTENDED=False
+   ```
+   or enable it with
+   ```dotenv
+    BUILD_EXTENDED=True
+   ```
+9. For Telegram Upload.
+   1. Set up a telegram channel, send a message to it and forward the message to
+      this telegram [bot](https://t.me/username_to_id_bot)
+   2. Copy `id` and save it to `TELEGRAM_CHAT_ID`<br>
+      ![chat id]
+   3. `TELEGRAM_BOT_TOKEN` - Telegram provides BOT_TOKEN. It works as sender. Open [bot](https://t.me/BotFather) and
+       create one copy api key<br>
+      ![bot api]
+   4. `TELEGRAM_API_ID`  - Telegram API_ID is provided by telegram [here](https://my.telegram.org/apps)<br>
+     ![tg api]
+   5. `TELEGRAM_API_HASH` - Telegram API_HASH is provided by telegram [here](https://my.telegram.org/apps)<br>
+     ![tg api hash]
+   6. After Everything done successfully the actions secrets of the repository will look something like<br>
+      <img src="https://i.imgur.com/dzC1KFa.png" width="400">
+
 ### Generate Token
-1. Go to your account developer [settings](https://github.com/settings/tokens).
-   Click on generate new token.
-  ![token 1]
-2. Give a nice name. and grant following permissions
-![token 2]
+1. Go to your account developer [settings](https://github.com/settings/tokens). Click on generate new token.<br>
+   <img src="https://i.imgur.com/grofl9E.png" height="150">
+2. Give a nice name. and grant following permissions<br>
+   <img src="https://user-images.githubusercontent.com/22337329/186550702-69c5fb77-32c3-4689-bb5c-3a213daa5e19.png" width="400" height="450">
 
 [secrets]: https://i.imgur.com/083Bjpg.png
-[token 1]: https://i.imgur.com/grofl9E.png
-[token 2]: https://user-images.githubusercontent.com/22337329/186550702-69c5fb77-32c3-4689-bb5c-3a213daa5e19.png
 [step_1]: https://i.imgur.com/Inj82KK.png
 [step_2]: https://user-images.githubusercontent.com/22337329/186521861-42786e8d-5db4-43ef-9676-2f7e7c0eddc4.png
 [action_0]: https://i.imgur.com/M1XdjZC.png
@@ -181,5 +210,9 @@ By default, script build the version as recommended by Revanced team.
 [action_2]: https://user-images.githubusercontent.com/22337329/186533358-e27e30bc-0d16-4f56-a335-0387c481dbf8.png
 [action_3]: https://user-images.githubusercontent.com/22337329/186533417-15477a2c-28c3-4e39-9f3d-c4e18202d000.png
 [apks]: https://i.imgur.com/S5d7qAO.png
+[chat id]: https://i.imgur.com/22UiaWs.png
+[bot api]: https://i.imgur.com/A6JCyK2.png
+[tg api]: https://i.imgur.com/eha3nnb.png
+[tg api hash]: https://i.imgur.com/7n5k1mp.png
 
 Thanks to [@aliharslan0](https://github.com/aliharslan0/pyrevanced) for his work.

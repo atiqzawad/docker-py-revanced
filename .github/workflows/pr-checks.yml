@@ -1,0 +1,14 @@
+name: PR Checks
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+on:
+  pull_request:
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  linter-pr-check:
+    uses: ./.github/workflows/linter.yml
+  build-apk-pr-check:
+    uses: ./.github/workflows/build-apk-artifact.yml

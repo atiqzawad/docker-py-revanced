@@ -1,18 +1,16 @@
-# Run pre-commit autoupdate every day at midnight
-# and create a pull request if any changes
-
-name: Pre-commit auto-update
+name: Pre-commit update Checker
 
 on:
   schedule:
     - cron: "15 2 * * *"
-  workflow_dispatch: # to trigger manually
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   auto-update:
+    timeout-minutes: 5
     if: github.repository == 'nikhilbadyal/docker-py-revanced'
     runs-on: ubuntu-latest
     steps:

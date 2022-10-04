@@ -5,11 +5,11 @@ on:
     workflows: [ "Build Revanced APK" ]
     types:
       - completed
-  workflow_dispatch: # to trigger manually
+  workflow_dispatch:
 
 jobs:
   virustotal:
-    timeout-minutes: 5
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: VirusTotal Scan
