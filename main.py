@@ -1,3 +1,4 @@
+"""Entry point."""
 import sys
 
 from environs import Env
@@ -10,6 +11,7 @@ from src.patches import Patches
 
 
 def main() -> None:
+    """Entry point."""
     env = Env()
     config = RevancedConfig(env)
 
@@ -23,11 +25,29 @@ def main() -> None:
             logger.info("Trying to build %s" % app)
             app_all_patches, version, is_experimental = patcher.get_app_configs(app)
             version = downloader.download_apk_to_patch(version, app)
-            patcher.include_and_exclude_patches(app, parser, app_all_patches)
+            patcher.include_exclude_patch(app, parser, app_all_patches)
             logger.info(f"Downloaded {app}, version {version}")
             parser.patch_app(app=app, version=version, is_experimental=is_experimental)
         except Exception as e:
             logger.exception(f"Failed to build {app} because of {e}")
+    if config.build_og_nd_branding_youtube:
+        logger.info("Rebuilding youtube")
+        all_patches = parser.get_all_patches()
+        branding_patch = "custom-branding"
+        if config.build_extended:
+            branding_patch = "custom-branding-icon-blue"
+        branding_index = all_patches.index(branding_patch)
+        was_og_build = True if all_patches[branding_index - 1] == "-e" else False
+        output = "-custom-icon-" if was_og_build else ""
+        app = "youtube"
+        _, version, is_experimental = patcher.get_app_configs(app)
+        parser.invert_patch(branding_patch)
+        parser.patch_app(
+            app=app,
+            version=version,
+            is_experimental=is_experimental,
+            output_prefix=output,
+        )
 
 
 if __name__ == "__main__":

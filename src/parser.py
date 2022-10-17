@@ -1,3 +1,4 @@
+"""Revanced Parser."""
 import sys
 from subprocess import PIPE, Popen
 from time import perf_counter
@@ -10,6 +11,8 @@ from src.patches import Patches
 
 
 class Parser(object):
+    """Revanced Parser."""
+
     def __init__(self, patcher: Patches, config: RevancedConfig) -> None:
         self._PATCHES: List[str] = []
         self._EXCLUDED: List[str] = []
@@ -17,16 +20,60 @@ class Parser(object):
         self.config = config
 
     def include(self, name: str) -> None:
+        """Include a given patch.
+
+        :param name: Name of the patch
+        """
         self._PATCHES.extend(["-i", name])
 
     def exclude(self, name: str) -> None:
+        """Exclude a given patch.
+
+        :param name: Name of the patch to exclude
+        """
         self._PATCHES.extend(["-e", name])
         self._EXCLUDED.append(name)
 
     def get_excluded_patches(self) -> List[str]:
+        """
+        Getter to get all excluded patches
+        :return: List of excluded patches
+        """
         return self._EXCLUDED
 
-    def patch_app(self, app: str, version: str, is_experimental: bool = False) -> None:
+    def get_all_patches(self) -> List[str]:
+        """
+        Getter to get all excluded patches
+        :return: List of excluded patches
+        """
+        return self._PATCHES
+
+    def invert_patch(self, name: str) -> None:
+        """
+        Getter to get all excluded patches
+        :return: List of excluded patches
+        """
+        patch_index = self._PATCHES.index(name)
+        if self._PATCHES[patch_index - 1] == "-e":
+            self._PATCHES[patch_index - 1] = "-i"
+        else:
+            self._PATCHES[patch_index - 1] = "-e"
+
+    # noinspection IncorrectFormatting
+    def patch_app(
+        self,
+        app: str,
+        version: str,
+        is_experimental: bool = False,
+        output_prefix: str = "-",
+    ) -> None:
+        """Revanced APP Patcher.
+
+        :param app: Name of the app
+        :param version: Version of the application
+        :param is_experimental: Whether to enable experimental support
+        :param output_prefix: Prefix to add to the output apks file name
+        """
         logger.debug(f"Sending request to revanced cli for building {app} revanced")
         cli = self.config.normal_cli_jar
         patches = self.config.normal_patches_jar
@@ -45,7 +92,7 @@ class Parser(object):
             "-m",
             integrations,
             "-o",
-            f"Re-{app}-{version}-output.apk",
+            f"Re-{app}-{version}{output_prefix}output.apk",
             "--keystore",
             self.config.keystore_name,
         ]

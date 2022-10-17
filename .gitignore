@@ -2,3 +2,5 @@
 *.jar
 *.keystore
 venv
+*/__pycache__*
+*.pyc

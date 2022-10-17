@@ -1,3 +1,4 @@
+"""Revanced Patches."""
 import subprocess
 import sys
 from typing import Any, Dict, List, Tuple
@@ -9,7 +10,11 @@ from src.config import RevancedConfig
 
 
 class Patches(object):
-    def check_java(self) -> None:
+    """Revanced Patches."""
+
+    @staticmethod
+    def check_java() -> None:
+        """Check if Java17 is installed."""
         logger.debug("Checking if java is available")
         jd = subprocess.check_output(
             ["java", "-version"], stderr=subprocess.STDOUT
@@ -23,7 +28,9 @@ class Patches(object):
             exit(-1)
         logger.debug("Cool!! Java is available")
 
+    # noinspection DuplicatedCode
     def fetch_patches(self) -> None:
+        """Function to fetch all patches."""
         session = Session()
 
         logger.debug("fetching all patches")
@@ -93,6 +100,11 @@ class Patches(object):
         self.fetch_patches()
 
     def get(self, app: str) -> Tuple[List[Dict[str, str]], str]:
+        """Get all patches for the given app.
+
+        :param app: Name of the application
+        :return: Patches
+        """
         logger.debug("Getting patches for %s" % app)
         app_names = {
             "reddit": "_reddit",
@@ -115,9 +127,16 @@ class Patches(object):
             logger.debug("No recommended version.")
         return patches, version
 
-    def include_and_exclude_patches(
-        self, app: str, arg_parser: Any, app_patches: List[Dict[str, str]]
+    # noinspection IncorrectFormatting
+    def include_exclude_patch(
+        self, app: str, parser: Any, patches: List[Dict[str, str]]
     ) -> None:
+        """Include and exclude patches for a given app.
+
+        :param app: Name of the app
+        :param parser: Parser Obj
+        :param patches: All the patches of a given app
+        """
         logger.debug(f"Excluding patches for app {app}")
         if self.config.build_extended and app in self.config.extended_apps:
             excluded_patches = self.config.env.list(
@@ -125,17 +144,22 @@ class Patches(object):
             )
         else:
             excluded_patches = self.config.env.list(f"EXCLUDE_PATCH_{app}".upper(), [])
-        for patch in app_patches:
-            arg_parser.include(patch["name"]) if patch[
+        for patch in patches:
+            parser.include(patch["name"]) if patch[
                 "name"
-            ] not in excluded_patches else arg_parser.exclude(patch["name"])
-        excluded = arg_parser.get_excluded_patches()
+            ] not in excluded_patches else parser.exclude(patch["name"])
+        excluded = parser.get_excluded_patches()
         if excluded:
             logger.debug(f"Excluded patches {excluded} for {app}")
         else:
             logger.debug(f"No excluded patches for {app}")
 
     def get_app_configs(self, app: str) -> Tuple[List[Dict[str, str]], str, bool]:
+        """Get Configurations for a given app.
+
+        :param app: Name of the application
+        :return: All Patches , Its version and whether it is experimental
+        """
         experiment = False
         total_patches, recommended_version = self.get(app=app)
         env_version = self.config.env.str(f"{app}_VERSION".upper(), None)
