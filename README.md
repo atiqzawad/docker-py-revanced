@@ -15,12 +15,8 @@ You can use any of the following methods to build.
 
 - 🚀In GitHub (**_`Recommended`_**)
    1. Fork the project.
-   ![image](https://user-images.githubusercontent.com/22337329/186554644-7d4c2172-c0dd-4ea6-9ec1-08e9b567a5e3.png)
-   2. Add following secrets to the repo.
-       1. _GH_TOKEN_ (**required**) - GitHub token so that it can upload to GitHub
-          after building. Click [here](#generate-token) to learn how to get that.
-       2. _VT_API_KEY_ (optional) - required only if you want Virus total scan.
-       3. _ENVS_ (optional) - required only if you want to cook specific apps/versions.
+   ![fork]
+   2. Add `ENVS` (**optional**) secret to the repo. Required only if you want to cook specific apps/versions.
        <details>
          <summary>🚶Detailed step by step guide</summary>
 
@@ -31,8 +27,7 @@ You can use any of the following methods to build.
 
       </details>
 
-   3. Go to actions tab. Select `Build Revanced APK`.Click on `Run Workflow`.
-      1. It can take a few minute to start. Just be patient.
+   3. Go to actions tab. Select `Build & Release`.Click on `Run Workflow`.
 
        <details>
          <summary>🚶Detailed step by step guide</summary>
@@ -40,28 +35,64 @@ You can use any of the following methods to build.
          - Go to actions tab
            ![action_0]
          - Check the status of build, It should look green.
-           ![action_1]
-         - Check logs if something fails.
-           ![action_2]
-           ![action_3]
+           ![build_wait]
 
        </details>
 
-   4. If the building process is successful, you’ll get your APKs in the releases
-       - ![apks]
-   5. Click on **`Build-<SomeRandomDate>`** and download the apk file.
+   4. If the building process is successful, you’ll get your APKs in the ![apks]
 
 
 <details>
-<summary>🐳With Docker</summary>
+<summary>🐳With Docker Compose</summary>
 
-1.  Install Docker
-2.  Run script with
+1. Install Docker(Skip if already installed)
+   ```bash
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sh get-docker.sh
+   ```
+2. Grant Permissions with(Skip if already there)
+   ```bash
+    sudo usermod -a -G docker ec2-user
+    sudo usermod -a -G docker $USER
+    sudo chmod 777 /var/run/docker.sock
+    ````
+3. Install Docker compose(Skip if already installed or using **_`Docker Desktop`_**)
+    ```bash
+    curl -L "https://github.com/docker/compose/releases/download/v2.10.2/docker-compose-$(uname -s)-$(uname -m)" \
+    -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    ```
+4. Clone the repo
+   ```bash
+   git clone https://github.com/nikhilbadyal/docker-py-revanced
+   ```
+5. cd to the cloned repo
+   ```bash
+   cd docker-py-revanced
+   ```
+6. Run script with
     ```shell
     docker-compose up
     ```
 
 </details>
+
+<details>
+<summary>🐳With Docker</summary>
+
+1. Install Docker(Skip if already installed)
+   ```bash
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sh get-docker.sh
+   ```
+2.  Run script with
+    ```shell
+    docker run -v "$(pwd)"/apks:/app/apks/  nikhilbadyal/docker-py-revanced
+    ```
+    You can pass below envs with `-e` flag.
+
+</details>
+
 
 <details>
 <summary>🫠Without Docker</summary>
@@ -87,8 +118,8 @@ You can use any of the following methods to build.
 </details>
 
 
-### Note (Pay attention to 3,4)
-
+### Note
+(Pay attention to 3,4)<br>
 By default, script build the version as recommended by Revanced team.
 
 1. Supported values for **_<REVANCED_APPS_NAME>_** are :
@@ -174,7 +205,7 @@ By default, script build the version as recommended by Revanced team.
    ```
    or disable it with (default)
    ```dotenv
-    BUILD_EXTENDED=True
+    BUILD_EXTENDED=False
    ```
 9. For Telegram Upload.
    1. Set up a telegram channel, send a message to it and forward the message to
@@ -194,21 +225,33 @@ By default, script build the version as recommended by Revanced team.
     fact to define your normal configurations in `.env` file and sometimes if you want to build something different just
     once. Add it in `GitHub secrets` or you can ignore `.env` file and always use `GitHub secrets` because to modify
     `.env` you need to modify the repo. Edit it and make a commit.
-11. Sample Envs ![envs]
+11. If you want to build YouTube with `original icon` and `custom branding icon` both. Add `BUILD_OG_BRANDING_YOUTUBE`
+    in `.env` file or in `ENVS` in `GitHub secrets` (Recommended) in the format
+    ```dotenv
+     BUILD_OG_BRANDING_YOUTUBE=True
+    ```
 
-### Generate Token
-1. Go to your account developer [settings](https://github.com/settings/tokens). Click on generate new token.<br>
-   <img src="https://i.imgur.com/grofl9E.png" height="150">
-2. Give a nice name. and grant following permissions<br>
-   <img src="https://user-images.githubusercontent.com/22337329/186550702-69c5fb77-32c3-4689-bb5c-3a213daa5e19.png" width="400" height="450">
+    You can also specify the branding patch to use for custom icon build. This can be done with by adding
+    `BRANDING_PATCH` in `ENVS` in `GitHub secrets` (Recommended) in the format
+    ```dotenv
+     BRANDING_PATCH=custom-branding-icon-blue
+    ```
+12. You can build only for a particular arch in order to get smaller apk files.This can be done with by adding comma
+    separated `ARCHS_TO_BUILD` in `ENVS` in `GitHub secrets` (Recommended) in the format.
+    ```dotenv
+     ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a
+    ```
+    Possible values for `ARCHS_TO_BUILD` are: `armeabi-v7a`,`x86`,`x86_64`,`arm64-v8a`
+    Make sure you are using `revanced-extended` as `revanced` doesn't support this.
+13. You can scan your build apks files with VirusTotal. For that, Add `VT_API_KEY` in `GitHub secrets`.
+14. Sample Envs ![envs]
 
+[fork]: https://i.imgur.com/R5HdByI.png
 [secrets]: https://i.imgur.com/083Bjpg.png
 [step_1]: https://i.imgur.com/Inj82KK.png
-[step_2]: https://user-images.githubusercontent.com/22337329/186521861-42786e8d-5db4-43ef-9676-2f7e7c0eddc4.png
-[action_0]: https://i.imgur.com/M1XdjZC.png
-[action_1]: https://user-images.githubusercontent.com/22337329/186533319-0aebf294-9bac-4859-b4e1-1b4c87d39f48.png
-[action_2]: https://user-images.githubusercontent.com/22337329/186533358-e27e30bc-0d16-4f56-a335-0387c481dbf8.png
-[action_3]: https://user-images.githubusercontent.com/22337329/186533417-15477a2c-28c3-4e39-9f3d-c4e18202d000.png
+[step_2]: https://i.imgur.com/V2Wfx3J.png
+[action_0]: https://i.imgur.com/XSCvzav.png
+[build_wait]: https://i.imgur.com/CsJt9W1.png
 [apks]: https://i.imgur.com/S5d7qAO.png
 [chat id]: https://i.imgur.com/22UiaWs.png
 [bot api]: https://i.imgur.com/A6JCyK2.png

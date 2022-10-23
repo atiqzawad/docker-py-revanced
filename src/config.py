@@ -22,6 +22,7 @@ class RevancedConfig:
         self.keystore_name = env.str("KEYSTORE_FILE_NAME", "revanced.keystore")
         self.apps = env.list("PATCH_APPS", supported_apps)
         self.extended_apps: List[str] = ["youtube", "youtube_music"]
+        self.rip_libs_apps: List[str] = ["youtube"]
         self.normal_cli_jar = "revanced-cli.jar"
         self.normal_patches_jar = "revanced-patches.jar"
         self.normal_integrations_apk = "revanced-integrations.apk"
@@ -57,3 +58,8 @@ class RevancedConfig:
             "youtube_music": f"{self.apk_mirror_urls.get('youtube_music')}youtube-music",
         }
         self.build_og_nd_branding_youtube = env.bool("BUILD_OG_BRANDING_YOUTUBE", False)
+        self.branding_patch = env.str(
+            "BRANDING_PATCH",
+            "custom-branding-icon-blue" if self.build_extended else "custom-branding",
+        )
+        self.archs_to_build = env.list("ARCHS_TO_BUILD", [])
