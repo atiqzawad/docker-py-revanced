@@ -1,6 +1,6 @@
 PATCH_APPS=youtube
 BUILD_EXTENDED=True
-EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,enable-wide-searchbar,custom-branding-icon-blue,custom-branding-icon-revancify,tablet-mini-player,enable-debugging,custom-playback-speed,enable-wide-searchbar,hide-cast-button,hide-autoplay-button,disable-fullscreen-panels,hide-my-mix
+EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,enable-wide-searchbar,custom-branding-icon-blue,custom-branding-icon-red,custom-branding-icon-revancify,tablet-mini-player,enable-debugging,custom-playback-speed,enable-wide-searchbar,hide-cast-button,hide-autoplay-button,disable-fullscreen-panels,hide-my-mix
 YOUTUBE_VERSION=17.41.37
 ARCHS_TO_BUILD=arm64-v8a
 
@@ -8,3 +8,4 @@ PATCH_APPS=youtube
 BUILD_EXTENDED=False
 EXCLUDE_PATCH_YOUTUBE=tablet-mini-player,enable-debugging,custom-playback-speed,enable-wide-searchbar,hide-cast-button,hide-autoplay-button,disable-fullscreen-panels,hide-my-mix
 YOUTUBE_VERSION=17.41.37
+ARCHS_TO_BUILD=arm64-v8a
