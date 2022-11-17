@@ -1,6 +1,6 @@
 """Revanced Configurations."""
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 from environs import Env
 from requests import Session
@@ -12,13 +12,14 @@ class RevancedConfig:
     """Revanced Configurations."""
 
     def __init__(self, env: Env) -> None:
+        self.app_versions: Dict[str, str] = {}
         self.env = env
         self.temp_folder = Path("apks")
         self.session = Session()
         self.session.headers["User-Agent"] = "anything"
         self.build_extended = env.bool("BUILD_EXTENDED", False)
         self.apk_mirror = "https://www.apkmirror.com"
-        self.upto_down = ["spotify"]
+        self.upto_down = ["spotify", "nyx-music-player", "icon-pack-studio", "twitch"]
         self.keystore_name = env.str("KEYSTORE_FILE_NAME", "revanced.keystore")
         self.apps = env.list("PATCH_APPS", default_build)
         self.extended_apps: List[str] = ["youtube", "youtube_music"]
@@ -48,6 +49,7 @@ class RevancedConfig:
             "warnwetter": f"{self.apk_mirror}/apk/deutscher-wetterdienst/warnwetter/",
             "youtube": f"{self.apk_mirror}/apk/google-inc/youtube/",
             "youtube_music": f"{self.apk_mirror}/apk/google-inc/youtube-music/",
+            "ticktick": f"{self.apk_mirror}/apk/appest-inc/ticktick-to-do-list-with-reminder-day-planner/",
         }
         self.apk_mirror_version_urls = {
             "reddit": f"{self.apk_mirror_urls.get('reddit')}reddit",
@@ -56,6 +58,7 @@ class RevancedConfig:
             "warnwetter": f"{self.apk_mirror_urls.get('warnwetter')}warnwetter",
             "youtube": f"{self.apk_mirror_urls.get('youtube')}youtube",
             "youtube_music": f"{self.apk_mirror_urls.get('youtube_music')}youtube-music",
+            "ticktick": f"{self.apk_mirror_urls.get('ticktick')}ticktick-to-do-list-with-reminder-day-planner",
         }
         self.archs_to_build = env.list("ARCHS_TO_BUILD", [])
         self.alternative_youtube_patches = env.list("ALTERNATIVE_YOUTUBE_PATCHES", [])

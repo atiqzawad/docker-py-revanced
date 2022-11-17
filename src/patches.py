@@ -1,12 +1,12 @@
 """Revanced Patches."""
 import subprocess
-import sys
 from typing import Any, Dict, List, Tuple
 
 from loguru import logger
 from requests import Session
 
 from src.config import RevancedConfig
+from src.utils import AppNotFound
 
 
 class Patches(object):
@@ -45,6 +45,10 @@ class Patches(object):
             "com.twitter.android": ("twitter", "_twitter"),
             "de.dwd.warnapp": ("warnwetter", "_warnwetter"),
             "com.spotify.music": ("spotify", "_spotify"),
+            "com.awedea.nyx": ("nyx-music-player", "_nyx"),
+            "ginlemon.iconpackstudio": ("icon-pack-studio", "_iconpackstudio"),
+            "com.ticktick.task": ("ticktick", "_ticktick"),
+            "tv.twitch.android.app": ("twitch", "_twitch"),
         }
 
         for app_name in (revanced_app_ids[x][1] for x in revanced_app_ids):
@@ -114,17 +118,23 @@ class Patches(object):
             "youtube": "_yt",
             "youtube_music": "_ytm",
             "spotify": "_spotify",
+            "nyx-music-player": "_nyx",
+            "icon-pack-studio": "_iconpackstudio",
+            "ticktick": "_ticktick",
+            "twitch": "_twitch",
         }
         if not (app_name := app_names.get(app)):
-            logger.debug("Invalid app name")
-            sys.exit(-1)
+            raise AppNotFound(app)
         patches = getattr(self, app_name)
         version = ""
-        if app in ("youtube", "youtube_music"):
-            version = next(i["version"] for i in patches if i["version"] != "all")
-            logger.debug(f"Recommended Version for patching {app} is {version}")
-        else:
-            logger.debug("No recommended version.")
+        try:
+            if app in ("youtube", "youtube_music"):
+                version = next(i["version"] for i in patches if i["version"] != "all")
+                logger.debug(f"Recommended Version for patching {app} is {version}")
+            else:
+                logger.debug("No recommended version.")
+        except StopIteration:
+            pass  # No recommended version available
         return patches, version
 
     # noinspection IncorrectFormatting

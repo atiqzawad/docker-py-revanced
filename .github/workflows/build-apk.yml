@@ -62,26 +62,25 @@ jobs:
           curl https://github.com/nikhilbadyal/docker-py-revanced/blob/changelogs/changelog.md > changelog.md
 
       - name: Delete Older Releases
-        uses: nikhilbadyal/ghaction-rm-releases@v0.0.1
+        uses: nikhilbadyal/ghaction-rm-releases@v0.0.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_PATTERN: "Build*"
 
       - name: Upload Build Artifact
-        uses: ncipollo/release-action@v1.11.1
+        uses: ncipollo/release-action@v1.11.2
         with:
           artifacts: "*-output.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: Build-${{ steps.get-date.outputs.date }}
           artifactErrorsFailBuild: true
-          generateReleaseNotes: true
 
       - name: Sleep for 10 seconds
         run: |
           sleep 10
 
   virustotal-scan:
-    needs: [upload-to-github]
+    needs: [ upload-to-github ]
     uses: nikhilbadyal/ghactions/.github/workflows/virustotal-scan.yml@main
     with:
       FILES: |
@@ -93,7 +92,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   upload-to-telegram:
-    needs: [upload-to-github]
+    needs: [ upload-to-github ]
     uses: nikhilbadyal/ghactions/.github/workflows/telegram-uploader.yml@main
     if: inputs.TELEGRAM_UPLOAD
     secrets:
@@ -103,11 +102,11 @@ jobs:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       STICKER_ID: ${{ secrets.STICKER_ID }}
       CHANGELOG_GITHUB_REPOSITORY: ${{ secrets.CHANGELOG_GITHUB_REPOSITORY }}
-      SEND_STICKER: ${{ secrets.SEND_STICKER }}
       MESSAGE: ${{ secrets.MESSAGE_NON_ROOT }}
+      SEND_STICKER: ${{ secrets.SEND_STICKER }}
 
   upload-to-telegram-root:
-    needs: [upload-to-telegram]
+    needs: [ upload-to-telegram ]
     uses: nikhilbadyal/ghactions/.github/workflows/telegram-uploader.yml@main
     if: github.repository == 'nikhilbadyal/docker-py-revanced'
     secrets:
@@ -122,10 +121,11 @@ jobs:
       SEND_MESSAGE: ${{ secrets.SEND_MESSAGE }}
       MESSAGE: ${{ secrets.MESSAGE_ROOT }}
 
+
   cleanup:
     name: GitHub Cleanup
     if: inputs.CLEANUP
-    needs: [upload-to-telegram]
+    needs: [ upload-to-telegram ]
     uses: ./.github/workflows/github-cleanup.yml
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
