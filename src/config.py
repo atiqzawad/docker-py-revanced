@@ -19,7 +19,18 @@ class RevancedConfig:
         self.session.headers["User-Agent"] = "anything"
         self.build_extended = env.bool("BUILD_EXTENDED", False)
         self.apk_mirror = "https://www.apkmirror.com"
-        self.upto_down = ["spotify", "nyx-music-player", "icon-pack-studio", "twitch"]
+        self.upto_down = [
+            "spotify",
+            "nyx-music-player",
+            "icon-pack-studio",
+            "twitch",
+            "windy",
+            "my-expenses",
+            "backdrops",
+            "sleep-as-android",
+        ]
+        self.apk_pure = ["pflotsh-ecmwf", "hex-editor", "anytracker"]
+        self.apk_sos = ["expensemanager"]
         self.keystore_name = env.str("KEYSTORE_FILE_NAME", "revanced.keystore")
         self.apps = env.list("PATCH_APPS", default_build)
         self.extended_apps: List[str] = ["youtube", "youtube_music"]
@@ -50,6 +61,8 @@ class RevancedConfig:
             "youtube": f"{self.apk_mirror}/apk/google-inc/youtube/",
             "youtube_music": f"{self.apk_mirror}/apk/google-inc/youtube-music/",
             "ticktick": f"{self.apk_mirror}/apk/appest-inc/ticktick-to-do-list-with-reminder-day-planner/",
+            "citra": f"{self.apk_mirror}/apk/citra-emulator/citra-emulator/",
+            "crunchyroll": f"{self.apk_mirror}/apk/ellation-inc/crunchyroll/",
         }
         self.apk_mirror_version_urls = {
             "reddit": f"{self.apk_mirror_urls.get('reddit')}reddit",
@@ -59,6 +72,8 @@ class RevancedConfig:
             "youtube": f"{self.apk_mirror_urls.get('youtube')}youtube",
             "youtube_music": f"{self.apk_mirror_urls.get('youtube_music')}youtube-music",
             "ticktick": f"{self.apk_mirror_urls.get('ticktick')}ticktick-to-do-list-with-reminder-day-planner",
+            "citra": f"{self.apk_mirror_urls.get('citra')}citra-emulator",
+            "crunchyroll": f"{self.apk_mirror_urls.get('crunchyroll')}crunchyroll",
         }
         self.archs_to_build = env.list("ARCHS_TO_BUILD", [])
         self.alternative_youtube_patches = env.list("ALTERNATIVE_YOUTUBE_PATCHES", [])

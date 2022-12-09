@@ -2,9 +2,9 @@
 
 A little python script that will help you in building Revanced and Revanced-Extended [apps](#note)
 
-Note - I prefer [Revanced Extended](https://github.com/inotia00/revanced-patches/tree/revanced-extended) more
+Note - ~~I prefer [Revanced Extended](https://github.com/inotia00/revanced-patches/tree/revanced-extended) more
 (for YouTube & YouTube Music) hence the YouTube and YouTube Music builds in this repo are from
-Revanced Extended.
+Revanced Extended.~~
 
 ## Pre-Built APKs
 
@@ -16,33 +16,35 @@ You can use any of the following methods to build.
 
 - 🚀In GitHub (**_`Recommended`_**)
 
-    1. Fork the project.<br>
-       <img src="https://i.imgur.com/R5HdByI.png" width="400" style="left"><br>
-    2. Add `ENVS` (**optional**) secret to the repo. Required only if you want to cook specific apps/versions.
+     1. Clik Star to support the project.<br>
+       <img src="https://i.imgur.com/FFyXaWY.png" width="400" style="left"><br>
+     2. Fork the project.<br>
+     <img src="https://i.imgur.com/R5HdByI.png" width="400" style="left"><br>
+     3. Add `ENVS` (**optional**) secret to the repo. Required only if you want to cook specific apps/versions.
+         <details>
+           <summary>🚶Detailed step by step guide</summary>
+
+         - Go to the repo settings and then to actions->secret<br>
+           <img src="https://i.imgur.com/Inj82KK.png" width="600" style="left"><br>
+         - Add Repository secret<br>
+           <img src="https://i.imgur.com/V2Wfx3J.png" width="600" style="left">
+
+        </details>
+
+     4. Go to actions tab. Select `Build & Release`.Click on `Run Workflow`.
+
         <details>
           <summary>🚶Detailed step by step guide</summary>
 
-        - Go to the repo settings and then to actions->secret<br>
-          <img src="https://i.imgur.com/Inj82KK.png" width="600" style="left"><br>
-        - Add Repository secret<br>
-          <img src="https://i.imgur.com/V2Wfx3J.png" width="600" style="left">
+         - Go to actions tab<br>
+           <img src="https://i.imgur.com/XSCvzav.png" width="600" style="left"><br>
+         - Check the status of build, It should look green.<br>
+           <img src="https://i.imgur.com/CsJt9W1.png" width="600" style="left">
 
-       </details>
+        </details>
 
-    3. Go to actions tab. Select `Build & Release`.Click on `Run Workflow`.
-
-       <details>
-         <summary>🚶Detailed step by step guide</summary>
-
-        - Go to actions tab<br>
-          <img src="https://i.imgur.com/XSCvzav.png" width="600" style="left"><br>
-        - Check the status of build, It should look green.<br>
-          <img src="https://i.imgur.com/CsJt9W1.png" width="600" style="left">
-
-       </details>
-
-    4. If the building process is successful, you’ll get your APKs in the <br>
-       <img src="https://i.imgur.com/S5d7qAO.png" width="700" style="left">
+     5. If the building process is successful, you’ll get your APKs in the <br>
+        <img src="https://i.imgur.com/S5d7qAO.png" width="700" style="left">
 
 - 🐳With Docker Compose
   Windows/Mac users simply install Docker Desktop. If using Linux see below
@@ -118,17 +120,30 @@ By default, script build the version as recommended by Revanced team.
 
 1. Supported values for **REVANCED_APPS_NAME** are :
 
-    1. youtube
-    2. youtube_music
-    3. twitter
-    4. reddit
-    5. tiktok
-    6. warnwetter
-    7. spotify
-    8. nyx-music-player
-    9. icon-pack-studio
-    10. ticktick
-    11. twitch
+    1. [youtube](https://www.apkmirror.com/apk/google-inc/youtube/)
+    2. [youtube_music](https://www.apkmirror.com/apk/google-inc/youtube-music/)
+    3. [twitter](https://www.apkmirror.com/apk/twitter-inc/twitter/)
+    4. [reddit](https://www.apkmirror.com/apk/redditinc/reddit/)
+    5. [tiktok](https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/)
+    6. [warnwetter](https://www.apkmirror.com/apk/deutscher-wetterdienst/warnwetter/)
+    7. [spotify](https://spotify.en.uptodown.com/android)
+    8. [nyx-music-player](https://nyx-music-player.en.uptodown.com/android)
+    9. [icon-pack-studio](https://icon-pack-studio.en.uptodown.com/android)
+    10. [ticktick](https://www.apkmirror.com/apk/appest-inc/ticktick-to-do-list-with-reminder-day-planner/)
+    11. [twitch](https://twitch.en.uptodown.com/android)
+    12. [pflotsh-ecmwf](https://m.apkpure.com/pflotsh-ecmwf/com.garzotto.pflotsh.ecmwf_a)
+    13. [hex-editor](https://m.apkpure.com/hex-editor/com.myprog.hexedit)
+    14. [citra](https://www.apkmirror.com/apk/citra-emulator/citra-emulator/)
+    15. [crunchyroll](https://www.apkmirror.com/apk/ellation-inc/crunchyroll/)
+    16. [windy](https://windy.en.uptodown.com/android)
+    17. [my-expenses](https://my-expenses.en.uptodown.com/android)
+    18. [backdrops](https://backdrops.en.uptodown.com/android)
+    19. [sleep-as-android](https://sleep-as-android.en.uptodown.com/android)
+    20. [anytracker](https://m.apkpure.com/anytracker-track-anything/com.shervinkoushan.anyTracker)
+    21. [expensemanager](https://apksos.com/app/com.ithebk.expensemanager)
+
+    <br>Please verify the source of original APKs yourself with links provided. I'm not responsible for any damaged caused.
+    If you know any better/safe source to download clean. Please raise a PR.
 
 2. Remember to download the **_Microg_**. Otherwise, you will not be able to open YouTube.
 3. By default, it will build only `youtube`. To build other apps supported by revanced team.
