@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from src.config import RevancedConfig
 from src.patches import Patches
-from src.utils import AppNotFound, update_changelog
+from src.utils import AppNotFound, handle_response, update_changelog
 
 
 class Downloader(object):
@@ -32,8 +32,19 @@ class Downloader(object):
         logger.debug(f"Trying to download {file_name} from {url}")
         self._QUEUE_LENGTH += 1
         start = perf_counter()
-        resp = self.config.session.get(url, stream=True)
-        total = int(resp.headers.get("content-length", 0))
+        headers = {}
+        if self.config.personal_access_token and "github" in url:
+            logger.debug("Using personal access token")
+            headers.update(
+                {"Authorization": "token " + self.config.personal_access_token}
+            )
+        response = self.config.session.get(
+            url,
+            stream=True,
+            headers=headers,
+        )
+        handle_response(response)
+        total = int(response.headers.get("content-length", 0))
         bar = tqdm(
             desc=file_name,
             total=total,
@@ -43,7 +54,7 @@ class Downloader(object):
             colour="green",
         )
         with self.config.temp_folder.joinpath(file_name).open("wb") as dl_file, bar:
-            for chunk in resp.iter_content(self._CHUNK_SIZE):
+            for chunk in response.iter_content(self._CHUNK_SIZE):
                 size = dl_file.write(chunk)
                 bar.update(size)
         self._QUEUE.put((perf_counter() - start, file_name))
@@ -79,7 +90,12 @@ class Downloader(object):
         apm = parser.css(".apkm-badge")
         sub_url = ""
         for is_apm in apm:
-            if "APK" in is_apm.text():
+            parent_text = is_apm.parent.parent.text()
+            if "APK" in is_apm.text() and (
+                "arm64-v8a" in parent_text
+                or "universal" in parent_text
+                or "noarch" in parent_text
+            ):
                 parser = is_apm.parent
                 sub_url = parser.css_first(".accent_color").attributes["href"]
                 break
@@ -161,13 +177,17 @@ class Downloader(object):
             logger.debug("Invalid app")
             sys.exit(1)
         parser = LexborHTMLParser(self.config.session.get(page).text)
-        main_page = parser.css_first(".appRowVariantTag>.accent_color").attributes[
-            "href"
-        ]
+        try:
+            main_page = parser.css_first(".appRowVariantTag>.accent_color").attributes[
+                "href"
+            ]
+        except AttributeError:
+            # Handles a case when variants are not available
+            main_page = parser.css_first(".downloadLink").attributes["href"]
         match = re.search(r"\d", main_page)
         if not match:
             logger.error("Cannot find app main page")
-            sys.exit(-1)
+            raise AppNotFound()
         int_version = match.start()
         extra_release = main_page.rfind("release") - 1
         version: str = main_page[int_version:extra_release]
@@ -188,14 +208,21 @@ class Downloader(object):
         """
         logger.debug(f"Trying to download {name} from github")
         repo_url = f"https://api.github.com/repos/{owner}/{name}/releases/latest"
-        r = requests.get(
-            repo_url, headers={"Content-Type": "application/vnd.github.v3+json"}
-        )
+        headers = {
+            "Content-Type": "application/vnd.github.v3+json",
+        }
+        if self.config.personal_access_token:
+            logger.debug("Using personal access token")
+            headers.update(
+                {"Authorization": "token " + self.config.personal_access_token}
+            )
+        response = requests.get(repo_url, headers=headers)
+        handle_response(response)
         if name == "revanced-patches":
-            download_url = r.json()["assets"][1]["browser_download_url"]
+            download_url = response.json()["assets"][1]["browser_download_url"]
         else:
-            download_url = r.json()["assets"][0]["browser_download_url"]
-        update_changelog(f"{owner}/{name}", r.json())
+            download_url = response.json()["assets"][0]["browser_download_url"]
+        update_changelog(f"{owner}/{name}", response.json())
         self._download(download_url, file_name=file_name)
 
     def download_revanced(self) -> None:
@@ -263,8 +290,12 @@ class Downloader(object):
 
         :param version: version to download
         :param app: App to download
-        :return: Version of apk
+        :return: Version of apk.
         """
+        if app in self.config.existing_downloaded_apks:
+            logger.debug("Will not download apk from the internet as it already exist.")
+            # Returning Latest as I don't know, which version user provided.
+            return "latest"
         if app in self.config.upto_down:
             return self.upto_down_downloader(app)
         elif app in self.config.apk_pure:

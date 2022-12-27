@@ -1,8 +1,29 @@
 """Utilities."""
 from typing import Dict
 
+from loguru import logger
+from requests import Response
+
 default_build = [
     "youtube",
+]
+all_builds = [
+    "youtube",
+    "youtube_music",
+    "twitter",
+    "reddit",
+    # "tiktok", # Commented because of out of memory issues
+    "warnwetter",
+    "spotify",
+    "nyx-music-player",
+    "icon_pack_studio",
+    "ticktick",
+    "twitch",
+    "hex-editor",
+    "citra",
+    "windy",
+    "my-expenses",
+    "backdrops",
 ]
 possible_archs = ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 
@@ -37,3 +58,10 @@ class AppNotFound(ValueError):
     """Not a valid Revanced App."""
 
     pass
+
+
+def handle_response(response: Response) -> None:
+    """Handle Get Request Response."""
+    response_code = response.status_code
+    if response_code != 200:
+        logger.info(response.text)
