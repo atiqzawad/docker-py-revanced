@@ -1,6 +1,6 @@
 PATCH_APPS=youtube
 BUILD_EXTENDED=True
-EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-revancify,custom-branding-icon-mmt,enable-debugging,hide-cast-button,hide-autoplay-button,hide-captions-button,custom-branding-name,theme
+EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-revancify,custom-branding-icon-mmt,hide-cast-button,hide-autoplay-button,hide-captions-button,custom-branding-name,theme
 YOUTUBE_VERSION=17.49.37
 ARCHS_TO_BUILD=arm64-v8a
 
