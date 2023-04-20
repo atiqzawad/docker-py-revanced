@@ -12,3 +12,9 @@ ARCHS_TO_BUILD=arm64-v8a
 
 PATCH_APPS=twitter,reddit,tiktok,nyx-music-player,ticktick,windy,backdrops
 ARCHS_TO_BUILD=arm64-v8a
+
+PATCH_APPS=youtube,youtube_music,twitter,reddit,tiktok,nyx-music-player,ticktick,windy,backdrops
+BUILD_EXTENDED=True
+EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-revancify,custom-branding-icon-mmt,hide-cast-button,hide-autoplay-button,hide-captions-button,custom-branding-name,theme
+EXCLUDE_PATCH_YOUTUBE_MUSIC_EXTENDED=custom-branding-music-afn-blue,custom-branding-music-afn-red,custom-branding-music-mmt,custom-branding-music-revancify,translations-music
+ARCHS_TO_BUILD=arm64-v8a
