@@ -1,7 +1,7 @@
 PATCH_APPS=youtube
 BUILD_EXTENDED=True
-EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-revancify,custom-branding-icon-mmt,hide-cast-button,hide-autoplay-button,hide-captions-button,custom-branding-name,theme
-YOUTUBE_VERSION=18.14.41
+EXCLUDE_PATCH_YOUTUBE_EXTENDED=bypass-ambient-mode-restrictions,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-mmt,custom-branding-icon-revancify-blue,custom-branding-icon-revancify-red,custom-branding-name,hide-autoplay-button,hide-autoplay-preview,hide-captions-button,hide-cast-button,materialyou,theme,translations
+YOUTUBE_VERSION=18.17.43
 ARCHS_TO_BUILD=arm64-v8a
 
 PATCH_APPS=youtube
