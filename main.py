@@ -5,10 +5,11 @@ from environs import Env
 from loguru import logger
 
 from src.config import RevancedConfig
-from src.downloader import Downloader
+from src.downloader.factory import DownloaderFactory
+from src.downloader.utils import download_revanced
 from src.parser import Parser
 from src.patches import Patches
-from src.utils import AppNotFound
+from src.utils import AppNotFound, PatcherDownloadFailed
 
 
 def main() -> None:
@@ -17,17 +18,24 @@ def main() -> None:
     config = RevancedConfig(env)
 
     patcher = Patches(config)
-    downloader = Downloader(patcher, config)
-    parser = Parser(patcher, config)
+    try:
+        download_revanced(config, patcher)
+    except PatcherDownloadFailed as e:
+        logger.error(f"Failed to download {e}")
+        sys.exit(1)
 
     logger.info(f"Will Patch only {patcher.config.apps}")
     for app in patcher.config.apps:
         try:
             logger.info("Trying to build %s" % app)
+            parser = Parser(patcher, config)
             app_all_patches, version, is_experimental = patcher.get_app_configs(app)
-            version = downloader.download_apk_to_patch(version, app)
-            config.app_versions[app] = version
             patcher.include_exclude_patch(app, parser, app_all_patches)
+            downloader = DownloaderFactory.create_downloader(
+                app=app, patcher=patcher, config=config
+            )
+            downloader.download(version, app)
+            config.app_versions[app] = version
             logger.info(f"Downloaded {app}, version {version}")
             parser.patch_app(app=app, version=version, is_experimental=is_experimental)
         except AppNotFound as e:
@@ -36,7 +44,11 @@ def main() -> None:
             logger.exception(f"Failed to build {app} because of {e}")
     if len(config.alternative_youtube_patches) and "youtube" in config.apps:
         for alternative_patch in config.alternative_youtube_patches:
-            _, version, is_experimental = patcher.get_app_configs("youtube")
+            parser = Parser(patcher, config)
+            app_all_patches, version, is_experimental = patcher.get_app_configs(
+                "youtube"
+            )
+            patcher.include_exclude_patch("youtube", parser, app_all_patches)
             was_inverted = parser.invert_patch(alternative_patch)
             if was_inverted:
                 logger.info(
@@ -54,7 +66,11 @@ def main() -> None:
                 )
     if len(config.alternative_youtube_music_patches) and "youtube_music" in config.apps:
         for alternative_patch in config.alternative_youtube_music_patches:
-            _, version, is_experimental = patcher.get_app_configs("youtube_music")
+            parser = Parser(patcher, config)
+            app_all_patches, version, is_experimental = patcher.get_app_configs(
+                "youtube_music"
+            )
+            patcher.include_exclude_patch("youtube_music", parser, app_all_patches)
             was_inverted = parser.invert_patch(alternative_patch)
             if was_inverted:
                 logger.info(
