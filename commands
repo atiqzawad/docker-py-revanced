@@ -18,3 +18,12 @@ BUILD_EXTENDED=True
 EXCLUDE_PATCH_YOUTUBE_EXTENDED=materialyou,translations,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-revancify,custom-branding-icon-mmt,hide-cast-button,hide-autoplay-button,hide-captions-button,custom-branding-name,theme
 EXCLUDE_PATCH_YOUTUBE_MUSIC_EXTENDED=custom-branding-music-afn-blue,custom-branding-music-afn-red,custom-branding-music-mmt,custom-branding-music-revancify,translations-music
 ARCHS_TO_BUILD=arm64-v8a
+
+PATCH_APPS=youtube,youtube_music
+BUILD_EXTENDED=True
+EXCLUDE_PATCH_YOUTUBE_EXTENDED=bypass-ambient-mode-restrictions,custom-branding-icon-afn-blue,custom-branding-icon-afn-red,custom-branding-icon-mmt,custom-branding-icon-revancify-blue,custom-branding-icon-revancify-red,custom-branding-name,hide-autoplay-button,hide-autoplay-preview,hide-captions-button,hide-cast-button,materialyou,theme,translations
+EXCLUDE_PATCH_YOUTUBE_MUSIC_EXTENDED=translations,enable-debug-logging,custom-package-name,custom-branding-icon-revancify-red,custom-branding-icon-revancify-blue,custom-branding-icon-mmt,custom-branding-music-name
+YOUTUBE_VERSION=18.29.38
+YOUTUBE_MUSIC_VERSION=6.13.52
+ARCHS_TO_BUILD=arm64-v8a
+
