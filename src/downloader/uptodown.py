@@ -1,25 +1,40 @@
 """Upto Down Downloader."""
-from typing import Any
+from typing import Any, Self, Tuple
 
+import requests
 from bs4 import BeautifulSoup
 from loguru import logger
-from selectolax.lexbor import LexborHTMLParser
 
+from src.app import APP
 from src.downloader.download import Downloader
-from src.utils import AppNotFound
+from src.exceptions import UptoDownAPKDownloadError
+from src.utils import bs4_parser, handle_request_response, request_header, request_timeout
 
 
 class UptoDown(Downloader):
     """Files downloader."""
 
-    def extract_download_link(self, page: str, app: str) -> None:
-        parser = LexborHTMLParser(self.config.session.get(page).text)
-        main_page = parser.css_first("#detail-download-button")
-        download_url = main_page.attributes["data-url"]
-        self._download(download_url, f"{app}.apk")
-        logger.debug(f"Downloaded {app} apk from upto_down_downloader in rt")
+    def extract_download_link(self: Self, page: str, app: str) -> Tuple[str, str]:
+        """Extract download link from uptodown url."""
+        r = requests.get(page, headers=request_header, allow_redirects=True, timeout=request_timeout)
+        handle_request_response(r, page)
+        soup = BeautifulSoup(r.text, bs4_parser)
+        download_button = soup.find(id="detail-download-button")
+        if not download_button:
+            msg = f"Unable to download {app} from uptodown."
+            raise UptoDownAPKDownloadError(msg, url=page)
+        download_url = download_button.get("data-url")  # type: ignore[union-attr]
+        if not download_url:
+            msg = f"Unable to download {app} from uptodown."
+            raise UptoDownAPKDownloadError(msg, url=page)
+        file_name = f"{app}.apk"
+        if isinstance(download_url, str):
+            self._download(download_url, file_name)
+            return file_name, download_url
+        msg = f"Unable to download {app} from uptodown."
+        raise UptoDownAPKDownloadError(msg, url=page)
 
-    def specific_version(self, app: str, version: str) -> None:
+    def specific_version(self: Self, app: APP, version: str) -> Tuple[str, str]:
         """Function to download the specified version of app from  apkmirror.
 
         :param app: Name of the application
@@ -27,21 +42,23 @@ class UptoDown(Downloader):
         :return: Version of downloaded apk
         """
         logger.debug("downloading specified version of app from uptodown.")
-        url = f"https://{app}.en.uptodown.com/android/versions"
+        url = f"{app.download_source}/versions"
         html = self.config.session.get(url).text
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(html, bs4_parser)
         versions_list = soup.find("section", {"id": "versions"})
         download_url = None
-        for version_item in versions_list.find_all("div", {"data-url": True}):
+        for version_item in versions_list.find_all("div", {"data-url": True}):  # type: ignore[union-attr]
             extracted_version = version_item.find("span", {"class": "version"}).text
             if extracted_version == version:
                 download_url = version_item["data-url"]
                 break
         if download_url is None:
-            raise AppNotFound(f"Unable to get download url for {app}")
-        self.extract_download_link(download_url, app)
-        logger.debug(f"Downloaded {app} apk from upto_down_downloader in rt")
+            msg = f"Unable to download {app.app_name} from uptodown."
+            raise UptoDownAPKDownloadError(msg, url=url)
+        return self.extract_download_link(download_url, app.app_name)
 
-    def latest_version(self, app: str, **kwargs: Any) -> None:
-        page = f"https://{app}.en.uptodown.com/android/download"
-        self.extract_download_link(page, app)
+    def latest_version(self: Self, app: APP, **kwargs: Any) -> Tuple[str, str]:
+        """Function to download the latest version of app from uptodown."""
+        logger.debug("downloading latest version of app from uptodown.")
+        page = f"{app.download_source}/download"
+        return self.extract_download_link(page, app.app_name)

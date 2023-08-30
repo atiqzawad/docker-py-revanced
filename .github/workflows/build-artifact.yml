@@ -4,11 +4,6 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 on:
   workflow_dispatch:
-    inputs:
-      FILES_TO_EXPECT:
-        type: string
-        required: false
-        default: '-1'
   workflow_call:
     secrets:
       ENVS:
@@ -16,10 +11,10 @@ on:
       REDDIT_CLIENT_ID:
         required: false
     inputs:
-      FILES_TO_EXPECT:
-        type: string
+      CI_TEST:
         required: false
-        default: '-1'
+        type: boolean
+        default: false
       COMMIT_CHANGELOG:
         type: boolean
         required: false
@@ -34,11 +29,11 @@ jobs:
   build-apk:
     name: APK Build
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@main
 
       - name: Update Env for custom build
         run: |
@@ -77,15 +72,24 @@ jobs:
 
 
       - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+        uses: mxschmitt/action-tmate@master
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.DEBUG_ENABLED }}
+        with:
+          detached: true
 
       - name: Build Revanced APKs
+        if: ${{ true && !inputs.DEBUG_ENABLED }}
         run: |
-          docker-compose up --build
-
+          if [[ "${{ inputs.CI_TEST }}" =~ ^(true|True|1)$ ]]; then
+              echo "In CI Testing. Using local compose file."
+              docker-compose -f docker-compose-local.yml up --build
+          else
+              echo "Using Prod compose file."
+              docker-compose up --build
+          fi
       - name: Upload Build APKS
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@main
+        if: ${{ true && !inputs.DEBUG_ENABLED }}
         with:
           name: Built-APKs
           path: |
@@ -95,7 +99,7 @@ jobs:
 
       - name: Commit Update file
         if: ${{ inputs.COMMIT_CHANGELOG }}
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@master
         with:
           branch: changelogs
           skip_checkout: true

@@ -1,21 +1,25 @@
 """Revanced Patches."""
+
+import contextlib
 import json
-import subprocess
-from typing import Any, Dict, List, Tuple
+from pathlib import Path
+from typing import Any, ClassVar, Dict, List, Self, Tuple
 
 from loguru import logger
-from requests import Session
 
+from src.app import APP
 from src.config import RevancedConfig
-from src.utils import AppNotFound, handle_response
+from src.exceptions import AppNotFoundError, PatchesJsonLoadError
 
 
 class Patches(object):
     """Revanced Patches."""
 
-    _revanced_app_ids = {
+    revanced_package_names: ClassVar[Dict[str, str]] = {
         "com.reddit.frontpage": "reddit",
+        "com.duolingo": "duolingo",
         "com.ss.android.ugc.trill": "tiktok",
+        "com.zhiliaoapp.musically": "musically",
         "com.twitter.android": "twitter",
         "de.dwd.warnapp": "warnwetter",
         "com.spotify.music": "spotify",
@@ -36,6 +40,8 @@ class Patches(object):
         "eu.faircode.netguard": "netguard",
         "com.instagram.android": "instagram",
         "com.nis.app": "inshorts",
+        "pl.solidexplorer2": "solidexplorer",
+        "com.adobe.lrmobile": "lightroom",
         "com.facebook.orca": "messenger",
         "com.google.android.apps.recorder": "grecorder",
         "tv.trakt.trakt": "trakt",
@@ -50,192 +56,180 @@ class Patches(object):
         "ml.docilealligator.infinityforreddit": "infinity",
         "me.ccrama.redditslide": "slide",
         "com.onelouder.baconreader": "bacon",
-    }
-    revanced_app_ids = {
-        key: (value, "_" + value) for key, value in _revanced_app_ids.items()
-    }
-    _revanced_extended_app_ids = {
         "com.google.android.youtube": "youtube",
         "com.google.android.apps.youtube.music": "youtube_music",
         "com.mgoogle.android.gms": "microg",
-        "com.reddit.frontpage": "reddit",
-    }
-    revanced_extended_app_ids = {
-        key: (value, "_" + value) for key, value in _revanced_extended_app_ids.items()
+        "jp.pxv.android": "pixiv",
+        "com.strava": "strava",
+        "com.microblink.photomath": "photomath",
+        "o.o.joey": "joey",
+        "com.vanced.android.youtube": "vanced",
+        "com.spotify.lite": "spotify-lite",
+        "at.gv.oe.app": "digitales",
+        "com.scb.phone": "scbeasy",
+        "reddit.news": "reddit-news",
+        "at.gv.bmf.bmf2go": "finanz-online",
     }
 
     @staticmethod
-    def check_java(dry_run: bool) -> None:
-        """Check if Java17 is installed."""
-        try:
-            if dry_run:
-                return
-            jd = subprocess.check_output(
-                ["java", "-version"], stderr=subprocess.STDOUT
-            ).decode("utf-8")
-            jd = jd[1:-1]
-            if "Runtime Environment" not in jd:
-                raise subprocess.CalledProcessError(-1, "java -version")
-            if "17" not in jd and "20" not in jd:
-                raise subprocess.CalledProcessError(-1, "java -version")
-            logger.debug("Cool!! Java is available")
-        except subprocess.CalledProcessError:
-            logger.debug("Java>= 17 Must be installed")
-            exit(-1)
+    def get_package_name(app: str) -> str:
+        """The function `get_package_name` takes an app name as input and returns the corresponding package name.
 
-    # noinspection DuplicatedCode
-    def fetch_patches(self) -> None:
-        """Function to fetch all patches."""
-        session = Session()
-        if self.config.dry_run:
-            logger.debug("fetching all patches from local file")
-            with open("patches.json") as f:
-                patches = json.load(f)
-        else:
-            url = "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
-            logger.debug(f"fetching all patches from {url}")
-            response = session.get(url)
-            handle_response(response)
-            patches = response.json()
+        Parameters
+        ----------
+        app : str
+            The `app` parameter is a string that represents the name of an app.
 
-        for app_name in (self.revanced_app_ids[x][1] for x in self.revanced_app_ids):
-            setattr(self, app_name, [])
-        setattr(self, "universal_patch", [])
+        Returns
+        -------
+            a string, which is the package name corresponding to the given app name.
+        """
+        for package, app_name in Patches.revanced_package_names.items():
+            if app_name == app:
+                return package
+        msg = f"App {app} not supported officially yet. Please provide package name in env to proceed."
+        raise AppNotFoundError(msg)
+
+    @staticmethod
+    def support_app() -> Dict[str, str]:
+        """The function returns a dictionary of supported app IDs.
+
+        Returns
+        -------
+            a dictionary of supported apps.
+        """
+        return Patches.revanced_package_names
+
+    def fetch_patches(self: Self, config: RevancedConfig, app: APP) -> None:
+        """The function fetches patches from a JSON file.
+
+        Parameters
+        ----------
+        config : RevancedConfig
+            The `config` parameter is of type `RevancedConfig` and represents the configuration for the
+        application.
+        app : APP
+            The `app` parameter is of type `APP`. It represents an instance of the `APP` class.
+        """
+        self.patches_dict[app.app_name] = []
+        patch_loader = PatchLoader()
+        patches = patch_loader.load_patches(f'{config.temp_folder}/{app.resource["patches_json"]}')
 
         for patch in patches:
             if not patch["compatiblePackages"]:
                 p = {x: patch[x] for x in ["name", "description"]}
                 p["app"] = "universal"
                 p["version"] = "all"
-                getattr(self, "universal_patch").append(p)
-            for compatible_package, version in [
-                (x["name"], x["versions"]) for x in patch["compatiblePackages"]
-            ]:
-                if compatible_package in self.revanced_app_ids:
-                    app_name = self.revanced_app_ids[compatible_package][1]
-                    p = {x: patch[x] for x in ["name", "description"]}
-                    p["app"] = compatible_package
-                    p["version"] = version[-1] if version else "all"
-                    getattr(self, app_name).append(p)
-        if self.config.dry_run:
-            extended_patches = patches
-        else:
-            if self.config.build_extended:
-                url = "https://raw.githubusercontent.com/inotia00/revanced-patches/revanced-extended/patches.json"
+                self.patches_dict["universal_patch"].append(p)
             else:
-                url = "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
-            response = session.get(url)
-            handle_response(response)
-            extended_patches = response.json()
-        for app_name in (
-            self.revanced_extended_app_ids[x][1] for x in self.revanced_extended_app_ids
-        ):
-            setattr(self, app_name, [])
+                for compatible_package, version in [(x["name"], x["versions"]) for x in patch["compatiblePackages"]]:
+                    if app.package_name == compatible_package:
+                        p = {x: patch[x] for x in ["name", "description"]}
+                        p["app"] = compatible_package
+                        p["version"] = version[-1] if version else "all"
+                        self.patches_dict[app.app_name].append(p)
 
-        for patch in extended_patches:
-            for compatible_package, version in [
-                (x["name"], x["versions"]) for x in patch["compatiblePackages"]
-            ]:
-                if compatible_package in self.revanced_extended_app_ids:
-                    app_name = self.revanced_extended_app_ids[compatible_package][1]
-                    p = {x: patch[x] for x in ["name", "description"]}
-                    p["app"] = compatible_package
-                    p["version"] = version[-1] if version else "all"
-                    getattr(self, app_name).append(p)
+        app.no_of_patches = len(self.patches_dict[app.app_name])
 
-        for app_name, app_id in self.revanced_extended_app_ids.values():
-            n_patches = len(getattr(self, app_id))
-            logger.debug(f"Total patches in {app_name} are {n_patches}")
-        for app_name, app_id in self.revanced_app_ids.values():
-            n_patches = len(getattr(self, app_id))
-            logger.debug(f"Total patches in {app_name} are {n_patches}")
-        n_patches = len(getattr(self, "universal_patch"))
-        logger.debug(f"Total universal patches are {n_patches}")
+    def __init__(self: Self, config: RevancedConfig, app: APP) -> None:
+        self.patches_dict: Dict[str, Any] = {"universal_patch": []}
+        self.fetch_patches(config, app)
 
-    def __init__(self, config: RevancedConfig) -> None:
-        self.config = config
-        self.check_java(self.config.dry_run)
-        self.fetch_patches()
-        if self.config.dry_run:
-            self.config.apps = list(self._revanced_app_ids.values())
+    def get(self: Self, app: str) -> Tuple[List[Dict[str, str]], str]:
+        """The function `get` returns all patches and version for a given application.
 
-    def get(self, app: str) -> Tuple[List[Dict[str, str]], str]:
-        """Get all patches for the given app.
+        Parameters
+        ----------
+        app : str
+            The `app` parameter is a string that represents the name of the application for which you want
+        to retrieve patches.
 
-        :param app: Name of the application
-        :return: Patches
+        Returns
+        -------
+            a tuple containing two elements. The first element is a list of dictionaries representing
+        patches for the given app. The second element is a string representing the version of the
+        patches.
         """
-        logger.debug("Getting patches for %s" % app)
-        app_names = {value[0]: value[1] for value in self.revanced_app_ids.values()}
-        app_names.update(
-            {value[0]: value[1] for value in self.revanced_extended_app_ids.values()}
-        )
-
-        if not (app_name := app_names.get(app)):
-            raise AppNotFound(app)
-        patches = getattr(self, app_name)
+        patches = self.patches_dict[app]
         version = "latest"
-        try:
+        with contextlib.suppress(StopIteration):
             version = next(i["version"] for i in patches if i["version"] != "all")
-            logger.debug(f"Recommended Version for patching {app} is {version}")
-        except StopIteration:
-            pass
         return patches, version
 
-    # noinspection IncorrectFormatting
-    def include_exclude_patch(
-        self, app: str, parser: Any, patches: List[Dict[str, str]]
-    ) -> None:
-        """Include and exclude patches for a given app.
+    def include_exclude_patch(self: Self, app: APP, parser: Any, patches: List[Dict[str, str]]) -> None:
+        """The function `include_exclude_patch` includes and excludes patches for a given app.
 
-        :param app: Name of the app
-        :param parser: Parser Obj
-        :param patches: All the patches of a given app
+        Parameters
+        ----------
+        app : APP
+            The "app" parameter is the name of the app for which the patches are being included or
+        excluded.
+        parser : Any
+            The `parser` parameter is an object of type `Any`, which means it can be any type of object. It
+        is used to perform parsing operations.
+        patches : List[Dict[str, str]]
+            A list of dictionaries, where each dictionary represents a patch and contains the following
+        keys:
         """
-        if self.config.build_extended and app in self.config.extended_apps:
-            excluded_patches = self.config.env.list(
-                f"EXCLUDE_PATCH_{app}_EXTENDED".upper(), []
-            )
-            included_patches = self.config.env.list(
-                f"INCLUDE_PATCH_{app}_EXTENDED".upper(), []
-            )
-        else:
-            excluded_patches = self.config.env.list(f"EXCLUDE_PATCH_{app}".upper(), [])
-            included_patches = self.config.env.list(f"INCLUDE_PATCH_{app}".upper(), [])
         for patch in patches:
             normalized_patch = patch["name"].lower().replace(" ", "-")
-            parser.include(
-                normalized_patch
-            ) if normalized_patch not in excluded_patches else parser.exclude(
+            parser.include(normalized_patch) if normalized_patch not in app.exclude_request else parser.exclude(
                 normalized_patch
             )
-        for normalized_patch in included_patches:
-            parser.include(normalized_patch) if normalized_patch not in getattr(
-                self, "universal_patch", []
-            ) else ()
-        excluded = parser.get_excluded_patches()
-        if excluded:
-            logger.debug(f"Excluded patches {excluded} for {app}")
-        else:
-            logger.debug(f"No excluded patches for {app}")
+        for normalized_patch in app.include_request:
+            parser.include(normalized_patch) if normalized_patch not in self.patches_dict["universal_patch"] else ()
 
-    def get_app_configs(self, app: str) -> Tuple[List[Dict[str, str]], str, bool]:
-        """Get Configurations for a given app.
+    def get_app_configs(self: Self, app: "APP") -> List[Dict[str, str]]:
+        """The function `get_app_configs` returns configurations for a given app.
 
-        :param app: Name of the application
-        :return: All Patches , Its version and whether it is
-            experimental
+        Parameters
+        ----------
+        app : "APP"
+            The "app" parameter is the name of the application for which you want to get the
+        configurations.
+
+        Returns
+        -------
+            the total_patches, which is a list of dictionaries containing information about the patches for
+        the given app. Each dictionary in the list contains the keys "Patches", "Version", and
+        "Experimental".
         """
         experiment = False
-        total_patches, recommended_version = self.get(app=app)
-        env_version = self.config.env.str(f"{app}_VERSION".upper(), None)
-        if env_version:
-            logger.debug(f"Picked {app} version {env_version} from env.")
+        total_patches, recommended_version = self.get(app=app.app_name)
+        if app.app_version:
+            logger.debug(f"Picked {app} version {app.app_version:} from env.")
             if (
-                env_version == "latest"
-                or env_version > recommended_version
-                or env_version < recommended_version
+                app.app_version == "latest"
+                or app.app_version > recommended_version
+                or app.app_version < recommended_version
             ):
                 experiment = True
-            recommended_version = env_version
-        return total_patches, recommended_version, experiment
+            recommended_version = app.app_version
+        app.app_version = recommended_version
+        app.experiment = experiment
+        return total_patches
+
+
+class PatchLoader(object):
+    """Patch Loader."""
+
+    @staticmethod
+    def load_patches(file_name: str) -> Any:
+        """The function `load_patches` loads patches from a file and returns them.
+
+        Parameters
+        ----------
+        file_name : str
+            The `file_name` parameter is a string that represents the name or path of the file from which
+        the patches will be loaded.
+
+        Returns
+        -------
+            the patches loaded from the file.
+        """
+        try:
+            with Path(file_name).open() as f:
+                return json.load(f)
+        except FileNotFoundError as e:
+            msg = "File not found"
+            raise PatchesJsonLoadError(msg, file_name=file_name) from e
