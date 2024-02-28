@@ -1,16 +1,15 @@
 """Utilities."""
-import os
+
 import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 from loguru import logger
-from requests import Response
+from requests import Response, Session
 
-from src.config import RevancedConfig
 from src.downloader.sources import APK_MIRROR_APK_CHECK
 from src.downloader.utils import status_code_200
 from src.exceptions import ScrapingError
@@ -30,9 +29,11 @@ request_header = {
 bs4_parser = "html.parser"
 changelog_file = "changelog.md"
 request_timeout = 60
+session = Session()
+session.headers["User-Agent"] = request_header["User-Agent"]
 
 
-def update_changelog(name: str, response: Dict[str, str]) -> None:
+def update_changelog(name: str, response: dict[str, str]) -> None:
     """The function `update_changelog` updates the changelog file.
 
     Parameters
@@ -49,7 +50,7 @@ def update_changelog(name: str, response: Dict[str, str]) -> None:
     write_to_file(change_log)
 
 
-def format_changelog(name: str, response: Dict[str, str], parent_repo: str) -> str:
+def format_changelog(name: str, response: dict[str, str], parent_repo: str) -> str:
     """The `format_changelog` returns formatted changelog string.
 
     Parameters
@@ -134,7 +135,7 @@ def slugify(string: str) -> str:
     modified_string = string.lower()
 
     # Remove special characters
-    modified_string = re.sub(r"[^\w\s-]", "", modified_string)
+    modified_string = re.sub(r"[^\w\s-]", "-", modified_string)
 
     # Replace spaces with dashes
     modified_string = re.sub(r"\s+", "-", modified_string)
@@ -171,32 +172,6 @@ def check_java() -> None:
         sys.exit(-1)
 
 
-def extra_downloads(config: RevancedConfig) -> None:
-    """The function `extra_downloads` downloads extra files specified.
-
-    Parameters
-    ----------
-    config : RevancedConfig
-        The `config` parameter is an instance of the `RevancedConfig` class. It is used to provide
-    configuration settings for the download process.
-    """
-    from src.app import APP
-
-    try:
-        for extra in config.extra_download_files:
-            url, file_name = extra.split("@")
-            file_name_without_extension, file_extension = os.path.splitext(file_name)
-            new_file_name = f"{file_name_without_extension}-output{file_extension}"
-            APP.download(
-                url,
-                config,
-                assets_filter=f".*{file_extension}",
-                file_name=new_file_name,
-            )
-    except (ValueError, IndexError):
-        logger.info("Unable to download extra file. Provide input in url@name.apk format.")
-
-
 def delete_old_changelog() -> None:
     """The function `delete_old_changelog` deleted old changelog file."""
     Path(changelog_file).unlink(missing_ok=True)
@@ -220,6 +195,6 @@ def apkmirror_status_check(package_name: str) -> Any:
     return response.json()
 
 
-def contains_any_word(string: str, words: List[str]) -> bool:
+def contains_any_word(string: str, words: list[str]) -> bool:
     """Checks if a string contains any word."""
     return any(word in string for word in words)

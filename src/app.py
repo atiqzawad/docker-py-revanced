@@ -1,9 +1,10 @@
 """Class to represent apk to be patched."""
+
 import concurrent
 import hashlib
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Self
+from typing import Self
 
 from loguru import logger
 
@@ -16,7 +17,7 @@ from src.utils import slugify
 class APP(object):
     """Patched APK."""
 
-    def __init__(self: Self, app_name: str, config: RevancedConfig) -> None:
+    def __init__(self: Self, app_name: str, package_name: str, config: RevancedConfig) -> None:
         """Initialize APP.
 
         Args:
@@ -24,8 +25,6 @@ class APP(object):
             app_name (str): Name of the app.
             config (RevancedConfig): Configuration object.
         """
-        from src.patches import Patches
-
         self.app_name = app_name
         self.app_version = config.env.str(f"{app_name}_VERSION".upper(), None)
         self.experiment = False
@@ -33,9 +32,9 @@ class APP(object):
         self.patches_dl = config.env.str(f"{app_name}_PATCHES_DL".upper(), config.global_patches_dl)
         self.integrations_dl = config.env.str(f"{app_name}_INTEGRATIONS_DL".upper(), config.global_integrations_dl)
         self.patches_json_dl = config.env.str(f"{app_name}_PATCHES_JSON_DL".upper(), config.global_patches_json_dl)
-        self.exclude_request: List[str] = config.env.list(f"{app_name}_EXCLUDE_PATCH".upper(), [])
-        self.include_request: List[str] = config.env.list(f"{app_name}_INCLUDE_PATCH".upper(), [])
-        self.resource: Dict[str, str] = {}
+        self.exclude_request: list[str] = config.env.list(f"{app_name}_EXCLUDE_PATCH".upper(), [])
+        self.include_request: list[str] = config.env.list(f"{app_name}_INCLUDE_PATCH".upper(), [])
+        self.resource: dict[str, str] = {}
         self.no_of_patches: int = 0
         self.keystore_name = config.env.str(f"{app_name}_KEYSTORE_FILE_NAME".upper(), config.global_keystore_name)
         self.archs_to_build = config.env.list(f"{app_name}_ARCHS_TO_BUILD".upper(), config.global_archs_to_build)
@@ -43,8 +42,12 @@ class APP(object):
         self.download_dl = config.env.str(f"{app_name}_DL".upper(), "")
         self.download_patch_resources(config)
         self.download_source = config.env.str(f"{app_name}_DL_SOURCE".upper(), "")
-        env_package_name = config.env.str(f"{app_name}_PACKAGE_NAME".upper(), None)
-        self.package_name = env_package_name or Patches.get_package_name(app_name)
+        self.package_name = package_name
+        self.old_key = config.env.bool(f"{app_name}_OLD_KEY".upper(), config.global_old_key)
+        self.space_formatted = config.env.bool(
+            f"{app_name}_SPACE_FORMATTED_PATCHES".upper(),
+            config.global_space_formatted,
+        )
 
     def download_apk_for_patching(self: Self, config: RevancedConfig) -> None:
         """Download apk to be patched."""

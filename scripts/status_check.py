@@ -1,7 +1,7 @@
 """Status check."""
+
 import re
 from pathlib import Path
-from typing import List
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -53,7 +53,7 @@ def apkcombo_scrapper(package_name: str) -> str:
         raise APKComboIconScrapError(url=apkcombo_url) from e
 
 
-def bigger_image(possible_links: List[str]) -> str:
+def bigger_image(possible_links: list[str]) -> str:
     """Select image with higher dimension."""
     higher_dimension_url = ""
     max_dimension = 0
@@ -125,7 +125,7 @@ def gplay_icon_scrapper(package_name: str) -> str:
         return str(
             gplay_app(
                 package_name,
-            )["icon"]
+            )["icon"],
         )
     except BuilderError as e:
         raise GooglePlayScraperException from e
@@ -168,7 +168,7 @@ def icon_scrapper(package_name: str) -> str:
     return not_found_icon
 
 
-def generate_markdown_table(data: List[List[str]]) -> str:
+def generate_markdown_table(data: list[list[str]]) -> str:
     """Generate markdown table."""
     if not data:
         return "No data to generate for the table."
@@ -196,8 +196,9 @@ def main() -> None:
 
     possible_apps = set()
     for patch in patches:
-        for compatible_package in patch["compatiblePackages"]:
-            possible_apps.add(compatible_package["name"])
+        if patch.get("compatiblePackages", None):
+            for compatible_package in patch["compatiblePackages"]:
+                possible_apps.add(compatible_package["name"])
 
     supported_app = set(Patches.support_app().keys())
     missing_support = sorted(possible_apps.difference(supported_app))
@@ -219,7 +220,7 @@ def main() -> None:
     output += table
     with Path("status.md").open("w", encoding="utf_8") as status:
         status.write(output)
-    print(output)
+    print(output)  # noqa: T201
 
 
 if __name__ == "__main__":

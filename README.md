@@ -1,6 +1,6 @@
 # 🤓Docker-Py-ReVanced
 
-A little python script that will help you in building Revanced [apps](#patch-apps).
+A little python script that will help you in building Revanced [apps](#patch-apps) and sharing them anywhere.
 
 **`Note`** - If you are a root user and want magisk module (Extended). Get them [here](https://github.com/nikhilbadyal/revanced-magisk-module)
 
@@ -103,43 +103,50 @@ You can use any of the following methods to build.
 
 ### Global Config
 
-| **Env Name**                                             |                  **Description**                  | **Default**                                                                                              |
-|:---------------------------------------------------------|:-------------------------------------------------:|:---------------------------------------------------------------------------------------------------------|
-| [PATCH_APPS](#patch-apps)                                |                Apps to patch/build                | youtube                                                                                                  |
-| [EXISTING_DOWNLOADED_APKS ](#existing-downloaded-apks)   |           Already downloaded clean apks           | []                                                                                                       |
-| [PERSONAL_ACCESS_TOKEN](#personal-access-token)          |              Github Token to be used              | None                                                                                                     |
-| DRY_RUN                                                  |                   Do a dry run                    | False                                                                                                    |
-| [GLOBAL_CLI_DL*](#global-resources)                      |     DL for CLI to be used for patching apps.      | [Revanced CLI](https://github.com/revanced/revanced-cli)                                                 |
-| [GLOBAL_PATCHES_DL*](#global-resources)                  |   DL for Patches to be used for patching apps.    | [Revanced Patches](https://github.com/revanced/revanced-patches)                                         |
-| [GLOBAL_PATCHES_JSON_DL*](#global-resources)             | DL for Patches Json to be used for patching apps. | [Revanced Patches](https://github.com/revanced/revanced-patches)                                         |
-| [GLOBAL_INTEGRATIONS_DL*](#global-resources)             | DL for Integrations to be used for patching apps. | [Revanced Integrations](https://github.com/revanced/revanced-integrations)                               |
-| [GLOBAL_KEYSTORE_FILE_NAME*](#global-keystore-file-name) |       Key file to be used for signing apps        | [Builder's own key](https://github.com/nikhilbadyal/docker-py-revanced/blob/main/apks/revanced.keystore) |
-| [GLOBAL_ARCHS_TO_BUILD*](#global-archs-to-build)         |         Arch to keep in the patched apk.          | All                                                                                                      |
-| REDDIT_CLIENT_ID                                         |       Reddit Client ID to patch reddit apps       | None                                                                                                     |
-| VT_API_KEY                                               |           Virus Total Key to scan APKs            | None                                                                                                     |
-| [TELEGRAM_CHAT_ID](#telegram-support)                    |            Receiver in Telegram upload            | None                                                                                                     |
-| [TELEGRAM_BOT_TOKEN](#telegram-support)                  |          APKs Sender for Telegram upload          | None                                                                                                     |
-| [TELEGRAM_API_ID](#telegram-support)                     |         Used for telegram Authentication          | None                                                                                                     |
-| [TELEGRAM_API_HASH](#telegram-support)                   |         Used for telegram Authentication          | None                                                                                                     |
-| [EXTRA_FILES](#extra-files)                              |    Extra files apk to upload in GitHub upload.    | None                                                                                                     |
+| **Env Name**                                             |                  **Description**                  | **Default**                                                                                                           |
+|:---------------------------------------------------------|:-------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------|
+| [PATCH_APPS](#patch-apps)                                |                Apps to patch/build                | youtube                                                                                                               |
+| [EXISTING_DOWNLOADED_APKS ](#existing-downloaded-apks)   |           Already downloaded clean apks           | []                                                                                                                    |
+| [PERSONAL_ACCESS_TOKEN](#personal-access-token)          |              Github Token to be used              | None                                                                                                                  |
+| DRY_RUN                                                  |                   Do a dry run                    | False                                                                                                                 |
+| [GLOBAL_CLI_DL*](#global-resources)                      |     DL for CLI to be used for patching apps.      | [Revanced CLI](https://github.com/revanced/revanced-cli)                                                              |
+| [GLOBAL_PATCHES_DL*](#global-resources)                  |   DL for Patches to be used for patching apps.    | [Revanced Patches](https://github.com/revanced/revanced-patches)                                                      |
+| [GLOBAL_SPACE_FORMATTED_PATCHES*](#global-resources)     |       Whether patches are space formatted.        | True                                                                                                                  |
+| [GLOBAL_PATCHES_JSON_DL*](#global-resources)             | DL for Patches Json to be used for patching apps. | [Revanced Patches](https://github.com/revanced/revanced-patches)                                                      |
+| [GLOBAL_INTEGRATIONS_DL*](#global-resources)             | DL for Integrations to be used for patching apps. | [Revanced Integrations](https://github.com/revanced/revanced-integrations)                                            |
+| [GLOBAL_KEYSTORE_FILE_NAME*](#global-keystore-file-name) |       Key file to be used for signing apps        | [Builder's own key](https://github.com/nikhilbadyal/docker-py-revanced/blob/main/apks/revanced.keystore)              |
+| [GLOBAL_OLK_KEY*](#global-keystore-file-name)            | Whether key was generated with cli v4(new) or not | <br/>[Builder's v3(old) own key](https://github.com/nikhilbadyal/docker-py-revanced/blob/main/apks/revanced.keystore) |
+| [GLOBAL_ARCHS_TO_BUILD*](#global-archs-to-build)         |         Arch to keep in the patched apk.          | All                                                                                                                   |
+| REDDIT_CLIENT_ID                                         |       Reddit Client ID to patch reddit apps       | None                                                                                                                  |
+| VT_API_KEY                                               |           Virus Total Key to scan APKs            | None                                                                                                                  |
+| [TELEGRAM_CHAT_ID](#telegram-support)                    |            Receiver in Telegram upload            | None                                                                                                                  |
+| [TELEGRAM_BOT_TOKEN](#telegram-support)                  |          APKs Sender for Telegram upload          | None                                                                                                                  |
+| [TELEGRAM_API_ID](#telegram-support)                     |         Used for telegram Authentication          | None                                                                                                                  |
+| [TELEGRAM_API_HASH](#telegram-support)                   |         Used for telegram Authentication          | None                                                                                                                  |
+| [EXTRA_FILES](#extra-files)                              |    Extra files apk to upload in GitHub upload.    | None                                                                                                                  |
+| [APPRISE_URL](#apprise)                                  |                   Apprise URL .                   | None                                                                                                                  |
+| [APPRISE_NOTIFICATION_TITLE](#apprise)                   |           Apprise Notification Title .            | None                                                                                                                  |
+| [APPRISE_NOTIFICATION_BODY](#apprise)                    |            Apprise Notification Body .            | None                                                                                                                  |
 
 `*` - Can be overridden for individual app.
 ### App Level Config
 
-| Env Name                                                    |                        Description                        | Default                        |
-|:------------------------------------------------------------|:---------------------------------------------------------:|:-------------------------------|
-| [*APP_NAME*_CLI_DL](#global-resources)                      |     DL for CLI to be used for patching **APP_NAME**.      | GLOBAL_CLI_DL                  |
-| [*APP_NAME*_PATCHES_DL](#global-resources)                  |   DL for Patches to be used for patching **APP_NAME**.    | GLOBAL_PATCHES_DL              |
-| [*APP_NAME*_PATCHES_JSON_DL](#global-resources)             | DL for Patches Json to be used for patching **APP_NAME**. | GLOBAL_PATCHES_JSON_DL         |
-| [*APP_NAME*_INTEGRATIONS_DL](#global-resources)             | DL for Integrations to be used for patching **APP_NAME**. | GLOBAL_INTEGRATIONS_DL         |
-| [*APP_NAME*_KEYSTORE_FILE_NAME](#global-keystore-file-name) |       Key file to be used for signing **APP_NAME**.       | GLOBAL_KEYSTORE_FILE_NAME      |
-| [*APP_NAME*_ARCHS_TO_BUILD](#global-archs-to-build)         |         Arch to keep in the patched **APP_NAME**.         | GLOBAL_ARCHS_TO_BUILD          |
-| [*APP_NAME*_EXCLUDE_PATCH**](#custom-exclude-patching)      |     Patches to exclude while patching  **APP_NAME**.      | []                             |
-| [*APP_NAME*_INCLUDE_PATCH**](#custom-include-patching)      |     Patches to include while patching  **APP_NAME**.      | []                             |
-| [*APP_NAME*_VERSION](#app-version)                          |         Version to use for download for patching.         | Recommended by patch resources |
-| [*APP_NAME*_PACKAGE_NAME***](#any-patch-apps)               |           Package name of the app to be patched           | None                           |
-| [*APP_NAME*_DL_SOURCE***](#any-patch-apps)                  |     Download source of any of the supported scrapper      | None                           |
-| [*APP_NAME*_DL***](#app-dl)                                 |            Direct download Link for clean apk             | None                           |
+| Env Name                                                    |                                         Description                                          | Default                        |
+|:------------------------------------------------------------|:--------------------------------------------------------------------------------------------:|:-------------------------------|
+| [*APP_NAME*_CLI_DL](#global-resources)                      |                       DL for CLI to be used for patching **APP_NAME**.                       | GLOBAL_CLI_DL                  |
+| [*APP_NAME*_PATCHES_DL](#global-resources)                  |                     DL for Patches to be used for patching **APP_NAME**.                     | GLOBAL_PATCHES_DL              |
+| [*APP_NAME*_PATCHES_JSON_DL](#global-resources)             |                  DL for Patches Json to be used for patching **APP_NAME**.                   | GLOBAL_PATCHES_JSON_DL         |
+| [*APP_NAME*_SPACE_FORMATTED_PATCHES](#global-resources)     |                     Whether patches are space formatted.   **APP_NAME**.                     | GLOBAL_SPACE_FORMATTED_PATCHES |
+| [*APP_NAME*_INTEGRATIONS_DL](#global-resources)             |                  DL for Integrations to be used for patching **APP_NAME**.                   | GLOBAL_INTEGRATIONS_DL         |
+| [*APP_NAME*_KEYSTORE_FILE_NAME](#global-keystore-file-name) |                        Key file to be used for signing **APP_NAME**.                         | GLOBAL_KEYSTORE_FILE_NAME      |
+| [*APP_NAME*_OLD_KEY](#global-keystore-file-name)            | Whether key used was generated with cli > v4(new) <br/><br/>**APP_NAME**.      <br/>   <br/> | GLOBAL_OLK_KEY                 |
+| [*APP_NAME*_ARCHS_TO_BUILD](#global-archs-to-build)         |                          Arch to keep in the patched **APP_NAME**.                           | GLOBAL_ARCHS_TO_BUILD          |
+| [*APP_NAME*_EXCLUDE_PATCH**](#custom-exclude-patching)      |                       Patches to exclude while patching  **APP_NAME**.                       | []                             |
+| [*APP_NAME*_INCLUDE_PATCH**](#custom-include-patching)      |                       Patches to include while patching  **APP_NAME**.                       | []                             |
+| [*APP_NAME*_VERSION](#app-version)                          |                          Version to use for download for patching.                           | Recommended by patch resources |
+| [*APP_NAME*_PACKAGE_NAME***](#any-patch-apps)               |                            Package name of the app to be patched                             | None                           |
+| [*APP_NAME*_DL_SOURCE***](#any-patch-apps)                  |                       Download source of any of the supported scrapper                       | None                           |
+| [*APP_NAME*_DL***](#app-dl)                                 |                              Direct download Link for clean apk                              | None                           |
 
 `**` - By default all patches for a given app are included.<br>
 `**` - Can be used to included universal patch.
@@ -187,7 +194,7 @@ You can use any of the following methods to build.
     - [infinity](https://www.apkmirror.com/apk/red-apps-ltd/sync-for-reddit/)
     - [slide](https://www.apkmirror.com/apk/haptic-apps/slide-for-reddit/)
     - [bacon](https://www.apkmirror.com/apk/onelouder-apps/baconreader-for-reddit/)
-    - [microg](https://github.com/inotia-/mMicroG/releases)
+    - [microg](https://github.com/inotia00/mMicroG/releases/)
     - [pixiv](https://www.apkmirror.com/apk/pixiv-inc/pixiv/)
     - [strava](https://www.apkmirror.com/apk/strava-inc/strava-running-and-cycling-gps/)
     - [solidexplorer](https://www.apkmirror.com/apk/neatbytes/solid-explorer-beta/)
@@ -202,8 +209,10 @@ You can use any of the following methods to build.
     - [scbeasy](https://www.apkmonk.com/app/com.scb.phone/)
     - [reddit-news](https://m.apkpure.com/relay-for-reddit/reddit.news)
     - [finanz-online](https://apksos.com/app/at.gv.bmf.bmf2go)
+    - [tumblr](https://www.apkmirror.com/apk/tumblr-inc/tumblr/)
+
     <br>`**` - You can also patch any other app which is **not** supported officially.To do so, you need to provide
-   few more inputs to the tool which are mentioned below.
+   few more inputs to the tool which are mentioned below. These config will override the sources config from the tool.
    ```ini
    <APP_NAME>_DL_SOURCE=<apk-link-to-any-of-the-suppored-scrapper>
    <APP_NAME>_PACKAGE_NAME=<package-name-of-the-application>
@@ -225,6 +234,9 @@ You can use any of the following methods to build.
    5. APKMonk - Supports downloading any available version
        1. Link Format - https://www.apkmonk.com/app/<package-name>/
        2. Example Link - https://www.apkmonk.com/app/<package-name>/
+   6. Google Drive - Supports downloading from Google Drive lint
+       1. Link Format - https://drive.google.com/uc?<id>
+       2. Example Link - https://drive.google.com/uc?id=1ad44UTghbDty8o36Nrp3ZMyUzkPckIqY
 
    <br>Please verify the source of original APKs yourself with links provided. I'm not responsible for any damage
     caused.If you know any better/safe source to download clean. Open a discussion.
@@ -284,6 +296,9 @@ You can use any of the following methods to build.
    If you have want to provide resource locally in the apks folder. You can specify that by mentioning filename
    prefixed with `local://`.
    *Note* - The link provided must be DLs. Unless they are from GitHub.
+   *Note* - Some of the patch source like inotia00 still provides **-** seperated patches while revanced shifted to
+   Space formatted patches. Use `SPACE_FORMATTED_PATCHES` to define the type of patches.
+
 8. <a id="global-keystore-file-name"></a>If you don't want to use default keystore. You can provide your own by
    placing it inside `apks` folder. And adding the name of `keystore-file` in `.env` file or in `ENVS` in `GitHub
    secrets` (Recommended) in the format
@@ -295,6 +310,15 @@ You can use any of the following methods to build.
     Example:
    ```dotenv
     YOUTUBE_KEYSTORE_FILE_NAME=youtube.keystore
+   ```
+   Note - If you are using your own keystore.And it was generated with cli > v4 Add
+   Example:
+   ```dotenv
+    GLOBAL_OLD_KEY=False
+   ```
+   if you are using different key for different apps. You need to specify at app level.
+    ```dotenv
+    YOUTUBE_OLD_KEY=False
    ```
 9. <a id="global-archs-to-build"></a>You can build only for a particular arch in order to get smaller apk files.This
    can be done with by adding comma separated `ARCHS_TO_BUILD` in `ENVS` in `GitHub secrets` (Recommended) in the
@@ -386,7 +410,11 @@ You can use any of the following methods to build.
     once. Add it in `GitHub secrets`.<br>
 17. Sample Envs<br>
     <img src="https://i.imgur.com/FxOtiGs.png" width="600" style="left">
-18. Make sure your Action has write access. If not click
-    [here](https://github.com/nikhilbadyal/docker-py-revanced/settings/actions).
-    In the bottom give read and write access to Actions.
-    <img src="https://i.imgur.com/STSv2D3.png" width="400">
+18. <a id="apprise"></a>[Apprise](https://github.com/caronc/apprise)<br>
+    We also have apprise support to upload built apk anywhere.To use apprise. Add belows envs in `.env` file
+    or in `ENVS` in `GitHub secrets` (Recommended) in the format
+    ```ini
+    APPRISE_URL=tgram://bot-token/chat-id
+    APPRISE_NOTIFICATION_BODY=What a great Body
+    APPRISE_NOTIFICATION_TITLE=What a great title
+    ```

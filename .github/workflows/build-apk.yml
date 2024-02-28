@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      APPRISE_NOTIFY:
+        description: "Use Apprise to Notify"
+        required: false
+        type: boolean
+        default: false
       VIRUSTOTAL_SCAN:
         description: "Scan apks with VirusTotal"
         required: false
@@ -35,7 +40,7 @@ on:
         description: "Update Changelog"
         type: boolean
         required: false
-        default: true
+        default: false
       DEBUG_ENABLED:
         type: boolean
         description: 'Run the build with tmate debugging enabled.'
@@ -58,7 +63,7 @@ jobs:
   upload-to-github:
     name: GitHub Upload
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     needs: build-apk
     if: inputs.GITHUB_UPLOAD
 
@@ -74,7 +79,7 @@ jobs:
           curl https://github.com/nikhilbadyal/docker-py-revanced/blob/changelogs/changelog.md > changelog.md
 
       - name: Delete Older Releases
-        uses: nikhilbadyal/ghaction-rm-releases@v0.0.3
+        uses: nikhilbadyal/ghaction-rm-releases@v0.0.5
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_PATTERN: "Build*"
@@ -112,10 +117,8 @@ jobs:
       TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      STICKER_ID: ${{ secrets.STICKER_ID }}
-      CHANGELOG_GITHUB_REPOSITORY: ${{ secrets.CHANGELOG_GITHUB_REPOSITORY }}
+      TELEGRAM_STICKER_ID: ${{ secrets.TELEGRAM_STICKER_ID }}
       MESSAGE: ${{ secrets.MESSAGE_NON_ROOT }}
-      SEND_STICKER: ${{ secrets.SEND_STICKER }}
 
   upload-to-telegram-root:
     needs: [ upload-to-telegram ]
@@ -126,13 +129,43 @@ jobs:
       TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      STICKER_ID: ${{ secrets.STICKER_ID }}
-      CHANGELOG_GITHUB_REPOSITORY: ${{ secrets.CHANGELOG_GITHUB_REPOSITORY }}
-      DOWNLOAD_GITHUB_REPOSITORY: ${{ secrets.DOWNLOAD_GITHUB_REPOSITORY }}
-      ASSETS_PATTERN: ${{ secrets.ASSETS_PATTERN }}
-      SEND_MESSAGE: ${{ secrets.SEND_MESSAGE }}
+      DOWNLOAD_GITHUB_REPOSITORY: ${{ secrets.ROOT_DOWNLOAD_GITHUB_REPOSITORY }}
       MESSAGE: ${{ secrets.MESSAGE_ROOT }}
 
+  apprise-notifier:
+    needs: build-apk
+    name: Apprise Notifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: inputs.APPRISE_NOTIFY
+
+    steps:
+      - name: Download Already Built APKs
+        uses: actions/download-artifact@main
+        with:
+          name: Built-APKs
+
+      - name: Find all built apks
+        id: ff
+        run: |
+          apk_list=""
+          for filename in $(find . -name "*-output.apk" -type f); do
+            apk_list="$apk_list,$filename"
+          done
+          apk_list=${apk_list:1}
+          echo "apks=$apk_list" >> "$GITHUB_OUTPUT"
+          is_present=$([ -n "${{ secrets.APPRISE_URL }}" ] && echo true || echo false );
+          echo "has_apprise_url=$is_present"  >> $GITHUB_OUTPUT
+      - name: Print files
+        run: echo "${{ steps.ff.outputs.apks }} ${{ steps.ff.outputs.has_apprise_url }}"
+
+      - name: Upload to Telegram
+        uses: nikhilbadyal/ghaction-apprise@main
+        with:
+          APPRISE_URL: ${{ secrets.APPRISE_URL }}
+          APPRISE_NOTIFICATION_BODY: ${{ secrets.APPRISE_NOTIFICATION_BODY }}
+          APPRISE_NOTIFICATION_TITLE: ${{ secrets.APPRISE_NOTIFICATION_TITLE }}
+          APPRISE_ATTACHMENTS: ${{ steps.ff.outputs.apks }}
 
   cleanup:
     name: GitHub Cleanup
